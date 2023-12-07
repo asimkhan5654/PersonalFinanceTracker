@@ -28,7 +28,7 @@ class FinanceTracker:
             CREATE TABLE IF NOT EXISTS budgets (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 category TEXT,
-                limit REAL)
+                budget_limit REAL)
         ''')
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS savings_goals (
@@ -80,18 +80,18 @@ class FinanceTracker:
             
     def join_query(self):
         query = '''
-        SELECT income.source, expenses.name AS expense_name, budgets.category, savings_goals.name AS savings_goal_name
-        FROM income
-        JOIN expenses ON income.id = expenses.income_id
-        JOIN budgets ON expenses.category = budgets.category  
-        JOIN savings_goals ON budgets.id = savings_goals.budget_id  
-    '''
-    self.cursor.execute(query)
-    result = self.cursor.fetchall()
-    print("\nJoin Query Result:")
-    for row in result:
-        print(row)
-        
+            SELECT income.source, expenses.name AS expense_name, budgets.category, savings_goals.name AS savings_goal_name
+            FROM income
+            JOIN expenses ON income.id = expenses.income_id
+            JOIN budgets ON expenses.category = budgets.category  
+            JOIN savings_goals ON budgets.id = savings_goals.budget_id  
+        '''
+        self.cursor.execute(query)
+        result = self.cursor.fetchall()
+        print("\nJoin Query Result:")
+        for row in result:
+            print(row)
+
     def delete_expense(self, expense_id):
         self.cursor.execute('SELECT id FROM expenses WHERE id=?', (expense_id,))
         existing_expense = self.cursor.fetchone()
@@ -112,6 +112,7 @@ class FinanceTracker:
             print(f"Budget with ID {budget_id} updated with a new limit: {new_limit}")
         else:
             print(f"Error: Budget with ID {budget_id} not found.")
+
 
 class Income:
     def __init__(self, finance_tracker):
