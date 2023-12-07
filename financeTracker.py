@@ -82,12 +82,12 @@ class FinanceTracker:
             
     def join_query(self):
         query = '''
-            SELECT income.source, expenses.name AS expense_name, budgets.category, savings_goals.name AS savings_goal_name
-            FROM income
-            JOIN expenses ON income.id = expenses.income_id
-            JOIN budgets ON expenses.category = budgets.category  
-            JOIN savings_goals ON budgets.id = savings_goals.budget_id  
-        '''
+        SELECT income.source, expenses.name AS expense_name, budgets.category, savings_goals.name AS savings_goal_name
+        FROM income
+        JOIN expenses ON income.id = expenses.income_id  -- Adjust the join condition here
+        JOIN budgets ON expenses.category = budgets.category  
+        JOIN savings_goals ON budgets.id = savings_goals.budget_id  
+    '''
         self.cursor.execute(query)
         result = self.cursor.fetchall()
         print("\nJoin Query Result:")
