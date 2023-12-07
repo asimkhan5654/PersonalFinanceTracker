@@ -153,10 +153,10 @@ def cli():
 
     while True:
         print("\n===== Finance Tracker Menu =====")
-        print("1. Add Income")
-        print("2. Add Expense")
+        print("1. Enter Income")
+        print("2. Enter Expense")
         print("3. Create Budget")
-        print("4. Add Savings Goal")
+        print("4. Enter Savings Goal")
         print("5. Track Spending")
         print("6. Generate Financial Report")
         print("7. Join Query")
