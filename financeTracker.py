@@ -3,22 +3,20 @@ from datetime import datetime
 
 class FinanceTracker:
     def __init__(self, db_name='finance_tracker.db'):
-        # Connect to the SQLite database
+        
         self.conn = sqlite3.connect(db_name)
         self.cursor = self.conn.cursor()
 
-        # Initialize tables
+       
         self.initialize_database()
 
     def initialize_database(self):
-        # Create tables if not exists
-        self.cursor.execute('''
+       self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS income (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 source TEXT,
                 amount REAL,
-                date DATE
-            )
+                date DATE)
         ''')
         
         self.cursor.execute('''
@@ -27,16 +25,14 @@ class FinanceTracker:
                 name TEXT,
                 amount REAL,
                 date DATE,
-                category TEXT
-            )
+                category TEXT)
         ''')
 
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS budgets (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 category TEXT,
-                limit REAL
-            )
+                limit REAL)
         ''')
 
         self.cursor.execute('''
@@ -44,6 +40,66 @@ class FinanceTracker:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT,
                 target_amount REAL,
-                deadline DATE
-            )
+                deadline DATE)
         ''')
+
+def add_income(self, source, amount, date=None):
+        date = date or datetime.now().strftime('%Y-%m-%d')
+        self.cursor.execute('INSERT INTO income (source, amount, date) VALUES (?, ?, ?)', (source, amount, date))
+        self.conn.commit()
+
+    def add_expense(self, name, amount, date=None, category=None):
+        date = date or datetime.now().strftime('%Y-%m-%d')
+        category = category or "Uncategorized"
+        self.cursor.execute('INSERT INTO expenses (name, amount, date, category) VALUES (?, ?, ?, ?)', (name, amount, date, category))
+        self.conn.commit()
+
+    def create_budget(self, category, limit):
+        limit = max(0, limit) 
+        self.cursor.execute('INSERT INTO budgets (category, limit) VALUES (?, ?)', (category, limit))
+        self.conn.commit()
+
+    def add_savings_goal(self, name, target_amount, deadline):
+        target_amount = max(0, target_amount)  
+        self.cursor.execute('INSERT INTO savings_goals (name, target_amount, deadline) VALUES (?, ?, ?)', (name, target_amount, deadline))
+        self.conn.commit()
+
+    def track_spending(self):
+        self.cursor.execute('SELECT SUM(amount) FROM expenses')
+        total_expenses = self.cursor.fetchone()[0]
+        print(f"Total Expenses: ${total_expenses}")
+
+    def generate_financial_report(self):
+        print("\nFinancial Summary:")
+        self.cursor.execute('SELECT * FROM income')
+        income_data = self.cursor.fetchall()
+        print("Income:")
+        for income in income_data:
+            print(f"{income[1]}: ${income[2]} on {income[3]}")
+
+        self.cursor.execute('SELECT * FROM expenses')
+        expenses_data = self.cursor.fetchall()
+        print("\nExpenses:")
+        for expense in expenses_data:
+            print(f"{expense[1]}: ${expense[2]} on {expense[3]} ({expense[4]})")
+
+
+if __name__ == "__main__":
+    
+    finance_tracker = FinanceTracker()
+
+    income_manager = Income(finance_tracker)
+    income_manager.add_income("Salary", 3000)
+
+    expenses_manager = Expenses(finance_tracker)
+    expenses_manager.add_expense("Rent", 1200, category="Housing")
+    expenses_manager.add_expense("Groceries", 200, category="Groceries")
+
+    budgets_manager = Budgets(finance_tracker)
+    budgets_manager.create_budget("Groceries", 300)
+
+    savings_manager = SavingsGoals(finance_tracker)
+    savings_manager.add_savings_goal("Emergency Fund", 5000, "2023-12-31")
+
+    finance_tracker.track_spending()
+    finance_tracker.generate_financial_report()
