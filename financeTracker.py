@@ -6,19 +6,16 @@ class FinanceTracker:
         
         self.conn = sqlite3.connect(db_name)
         self.cursor = self.conn.cursor()
-
-       
         self.initialize_database()
-
+        
     def initialize_database(self):
-       self.cursor.execute('''
+        self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS income (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 source TEXT,
                 amount REAL,
                 date DATE)
         ''')
-        
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS expenses (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,14 +24,12 @@ class FinanceTracker:
                 date DATE,
                 category TEXT)
         ''')
-
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS budgets (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 category TEXT,
                 limit REAL)
         ''')
-
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS savings_goals (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -42,7 +37,7 @@ class FinanceTracker:
                 target_amount REAL,
                 deadline DATE)
         ''')
-
+        
     def add_income(self, source, amount, date=None):
         date = date or datetime.now().strftime('%Y-%m-%d')
         self.cursor.execute('INSERT INTO income (source, amount, date) VALUES (?, ?, ?)', (source, amount, date))
@@ -82,9 +77,9 @@ class FinanceTracker:
         print("\nExpenses:")
         for expense in expenses_data:
             print(f"{expense[1]}: ${expense[2]} on {expense[3]} ({expense[4]})")
-
-def join_query(self):
-    query = '''
+            
+    def join_query(self):
+        query = '''
         SELECT income.source, expenses.name AS expense_name, budgets.category, savings_goals.name AS savings_goal_name
         FROM income
         JOIN expenses ON income.id = expenses.income_id
@@ -97,7 +92,7 @@ def join_query(self):
     for row in result:
         print(row)
         
-def delete_expense(self, expense_id):
+    def delete_expense(self, expense_id):
         self.cursor.execute('SELECT id FROM expenses WHERE id=?', (expense_id,))
         existing_expense = self.cursor.fetchone()
         if existing_expense:
