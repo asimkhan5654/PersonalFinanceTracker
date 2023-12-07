@@ -67,7 +67,7 @@ class FinanceTracker:
     def track_spending(self):
         self.cursor.execute('SELECT SUM(amount) FROM expenses')
         total_expenses = self.cursor.fetchone()[0]
-        print(f"Total Expenses: ${total_expenses}")
+        print(f"Expenses: ${total_expenses}")
 
     def generate_financial_report(self):
         print("\nFinancial Summary:")
@@ -82,6 +82,41 @@ class FinanceTracker:
         print("\nExpenses:")
         for expense in expenses_data:
             print(f"{expense[1]}: ${expense[2]} on {expense[3]} ({expense[4]})")
+
+def join_query(self):
+    query = '''
+        SELECT income.source, expenses.name AS expense_name, budgets.category, savings_goals.name AS savings_goal_name
+        FROM income
+        JOIN expenses ON income.id = expenses.income_id
+        JOIN budgets ON expenses.category = budgets.category  
+        JOIN savings_goals ON budgets.id = savings_goals.budget_id  
+    '''
+    self.cursor.execute(query)
+    result = self.cursor.fetchall()
+    print("\nJoin Query Result:")
+    for row in result:
+        print(row)
+        
+def delete_expense(self, expense_id):
+        self.cursor.execute('SELECT id FROM expenses WHERE id=?', (expense_id,))
+        existing_expense = self.cursor.fetchone()
+        if existing_expense:
+            self.cursor.execute('DELETE FROM expenses WHERE id=?', (expense_id,))
+            self.conn.commit()
+            print(f"Expense with ID {expense_id} deleted successfully.")
+        else:
+            print(f"Error: Expense with ID {expense_id} not found.")
+
+    def update_budget_limit(self, budget_id, new_limit):
+        self.cursor.execute('SELECT id FROM budgets WHERE id=?', (budget_id,))
+        existing_budget = self.cursor.fetchone()
+        if existing_budget:
+            new_limit = max(0, new_limit)
+            self.cursor.execute('UPDATE budgets SET limit=? WHERE id=?', (new_limit, budget_id))
+            self.conn.commit()
+            print(f"Budget with ID {budget_id} updated with a new limit: {new_limit}")
+        else:
+            print(f"Error: Budget with ID {budget_id} not found.")
 
 class Income:
     def __init__(self, finance_tracker):
@@ -113,9 +148,97 @@ class SavingsGoals:
 
     def add_savings_goal(self, name, target_amount, deadline):
         self.finance_tracker.add_savings_goal(name, target_amount, deadline)
+def cli():
+    finance_tracker = FinanceTracker()
+
+    while True:
+        print("\n===== Finance Tracker Menu =====")
+        print("1. Add Income")
+        print("2. Add Expense")
+        print("3. Create Budget")
+        print("4. Add Savings Goal")
+        print("5. Track Spending")
+        print("6. Generate Financial Report")
+        print("7. Join Query")
+        print("8. Delete Expense")
+        print("9. Update Budget Limit")
+        print("0. Exit")
+
+        choice = input("Enter your choice (0-9): ")
+
+        try:
+            choice = int(choice)
+        except ValueError:
+            print("Error: Please enter a valid number between 0 and 9.")
+            continue
+
+        if choice == 1:
+            source = input("Enter income source: ")
+            try:
+                amount = float(input("Enter income amount: "))
+            except ValueError:
+                print("Error: Please enter a valid numeric amount.")
+                continue
+            finance_tracker.add_income(source, amount)
+        elif choice == 2:
+            name = input("Enter expense name: ")
+            try:
+                amount = float(input("Enter expense amount: "))
+            except ValueError:
+                print("Error: Please enter a valid numeric amount.")
+                continue
+            date = input("Enter expense date (YYYY-MM-DD): ")
+            category = input("Enter expense category: ")
+            finance_tracker.add_expense(name, amount, date, category)
+        elif choice == 3:
+            category = input("Enter budget category: ")
+            try:
+                limit = float(input("Enter budget limit: "))
+            except ValueError:
+                print("Error: Please enter a valid numeric limit.")
+                continue
+            finance_tracker.create_budget(category, limit)
+        elif choice == 4:
+            name = input("Enter savings goal name: ")
+            try:
+                target_amount = float(input("Enter savings goal target amount: "))
+            except ValueError:
+                print("Error: Please enter a valid numeric target amount.")
+                continue
+            deadline = input("Enter savings goal deadline (YYYY-MM-DD): ")
+            finance_tracker.add_savings_goal(name, target_amount, deadline)
+        elif choice == 5:
+            finance_tracker.track_spending()
+        elif choice == 6:
+            finance_tracker.generate_financial_report()
+        elif choice == 7:
+            finance_tracker.join_query()
+        elif choice == 8:
+            try:
+                expense_id = int(input("Enter expense ID to delete: "))
+            except ValueError:
+                print("Error: Please enter correct numeric expense ID.")
+                continue
+            finance_tracker.delete_expense(expense_id)
+        elif choice == 9:
+            try:
+                budget_id = int(input("Enter budget ID to update: "))
+                new_limit = float(input("Enter new budget limit: "))
+            except ValueError:
+                print("Error: Please enter correct numeric values for budget ID and limit.")
+                continue
+            finance_tracker.update_budget_limit(budget_id, new_limit)
+        elif choice == 0:
+            print("Exiting Finance Tracker. BYE!")
+            break
+        else:
+            print("Error: Invalid. Please enter number between 0 & 9.")
+
+
 
 
 if __name__ == "__main__":
+    cli()
     
     finance_tracker = FinanceTracker()
 
@@ -134,3 +257,12 @@ if __name__ == "__main__":
 
     finance_tracker.track_spending()
     finance_tracker.generate_financial_report()
+    finance_tracker.join_query()  
+
+    
+    expense_to_delete_id = 1  
+    finance_tracker.delete_expense(expense_to_delete_id)
+
+    budget_to_update_id = 1  
+    new_budget_limit = 400
+    finance_tracker.update_budget_limit(budget_to_update_id, new_budget_limit)
