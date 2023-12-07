@@ -43,7 +43,7 @@ class FinanceTracker:
                 deadline DATE)
         ''')
 
-def add_income(self, source, amount, date=None):
+    def add_income(self, source, amount, date=None):
         date = date or datetime.now().strftime('%Y-%m-%d')
         self.cursor.execute('INSERT INTO income (source, amount, date) VALUES (?, ?, ?)', (source, amount, date))
         self.conn.commit()
@@ -63,7 +63,7 @@ def add_income(self, source, amount, date=None):
         target_amount = max(0, target_amount)  
         self.cursor.execute('INSERT INTO savings_goals (name, target_amount, deadline) VALUES (?, ?, ?)', (name, target_amount, deadline))
         self.conn.commit()
-
+    
     def track_spending(self):
         self.cursor.execute('SELECT SUM(amount) FROM expenses')
         total_expenses = self.cursor.fetchone()[0]
@@ -82,6 +82,37 @@ def add_income(self, source, amount, date=None):
         print("\nExpenses:")
         for expense in expenses_data:
             print(f"{expense[1]}: ${expense[2]} on {expense[3]} ({expense[4]})")
+
+class Income:
+    def __init__(self, finance_tracker):
+        self.finance_tracker = finance_tracker
+
+    def add_income(self, source, amount, date=None):
+        self.finance_tracker.add_income(source, amount, date)
+
+
+class Expenses:
+    def __init__(self, finance_tracker):
+        self.finance_tracker = finance_tracker
+
+    def add_expense(self, name, amount, date=None, category=None):
+        self.finance_tracker.add_expense(name, amount, date, category)
+
+
+class Budgets:
+    def __init__(self, finance_tracker):
+        self.finance_tracker = finance_tracker
+
+    def create_budget(self, category, limit):
+        self.finance_tracker.create_budget(category, limit)
+
+
+class SavingsGoals:
+    def __init__(self, finance_tracker):
+        self.finance_tracker = finance_tracker
+
+    def add_savings_goal(self, name, target_amount, deadline):
+        self.finance_tracker.add_savings_goal(name, target_amount, deadline)
 
 
 if __name__ == "__main__":
