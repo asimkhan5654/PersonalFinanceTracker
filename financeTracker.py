@@ -103,8 +103,13 @@ class FinanceTracker:
             print(f"Error: Expense with ID {expense_id} not found.")
 
     def update_budget_limit(self, budget_id, new_limit):
+        
         self.cursor.execute('SELECT id FROM budgets WHERE id=?', (budget_id,))
         existing_budget = self.cursor.fetchone()
+        print(f"Existing Budget IDs: {existing_budget_ids}")
+        self.cursor.execute('SELECT id FROM budgets WHERE id=?', (budget_id,))
+        existing_budget = self.cursor.fetchone()
+        
         if existing_budget:
             new_limit = max(0, new_limit)
             self.cursor.execute('UPDATE budgets SET limit=? WHERE id=?', (new_limit, budget_id))
