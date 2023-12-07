@@ -49,10 +49,12 @@ class FinanceTracker:
         self.cursor.execute('INSERT INTO expenses (name, amount, date, category) VALUES (?, ?, ?, ?)', (name, amount, date, category))
         self.conn.commit()
 
-    def create_budget(self, category, limit):
-        limit = max(0, limit) 
-        self.cursor.execute('INSERT INTO budgets (category, limit) VALUES (?, ?)', (category, limit))
+     def create_budget(self, category, limit):
+        limit = max(0, limit)
+        self.cursor.execute('INSERT INTO budgets (category, budget_limit) VALUES (?, ?)', (category, limit))
         self.conn.commit()
+        budget_id = self.cursor.lastrowid  
+        print(f"Budget created - ID: {budget_id}, Category: {category}, Limit: {limit}")
 
     def add_savings_goal(self, name, target_amount, deadline):
         target_amount = max(0, target_amount)  
@@ -105,14 +107,14 @@ class FinanceTracker:
     def update_budget_limit(self, budget_id, new_limit):
         
         self.cursor.execute('SELECT id FROM budgets WHERE id=?', (budget_id,))
-        existing_budget = self.cursor.fetchone()
+        existing_budget_ids = [row[0] for row in self.cursor.fetchall()]
         print(f"Existing Budget IDs: {existing_budget_ids}")
         self.cursor.execute('SELECT id FROM budgets WHERE id=?', (budget_id,))
         existing_budget = self.cursor.fetchone()
         
         if existing_budget:
             new_limit = max(0, new_limit)
-            self.cursor.execute('UPDATE budgets SET limit=? WHERE id=?', (new_limit, budget_id))
+            self.cursor.execute('UPDATE budgets SET budget_limit=? WHERE id=?', (new_limit, budget_id))
             self.conn.commit()
             print(f"Budget with ID {budget_id} updated with a new limit: {new_limit}")
         else:
@@ -234,6 +236,7 @@ def cli():
             break
         else:
             print("Error: Invalid. Please enter number between 0 & 9.")
+
 
 
 
